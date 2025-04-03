@@ -10,6 +10,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
+from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.authentication import TokenAuthentication
+
 
 class HelloView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
@@ -53,5 +56,14 @@ def register(request):
 
 
 @api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def profile(request):
-    return Response({})
+
+    print(request.user)
+    print(request.user.id)
+
+    serializer = UserSerializer(instance=request.user)
+
+    # return Response("You are login with {}".format(request.user.username), status=status.HTTP_200_OK)
+    return Response(serializer.data, status=status.HTTP_200_OK)
